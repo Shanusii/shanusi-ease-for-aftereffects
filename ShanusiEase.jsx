@@ -424,6 +424,75 @@
     }
 
     /* =================================================================
+     * MAKE OUT  (balikan animasi masuk -> animasi keluar di playhead)
+     * Membaca keyframe terpilih lalu menulis salinan TERBALIK (value +
+     * easing + interpolasi + spatial tangent) mulai dari playhead.
+     * Keyframe masuk asli dibiarkan utuh.
+     * ===============================================================*/
+    function negEase(arr) {
+        var o = [];
+        for (var i = 0; i < arr.length; i++) o.push(new KeyframeEase(-arr[i].speed, arr[i].influence));
+        return o;
+    }
+    function negVec(v) { var o = []; for (var i = 0; i < v.length; i++) o.push(-v[i]); return o; }
+
+    function reverseToOut(prop, keys, A, durScale) {
+        var n = keys.length;
+        var spatial = prop.isSpatial;
+        var tLast = prop.keyTime(keys[n - 1]);
+        // Rekam dulu data keyframe sumber (sebelum menambah key baru)
+        var data = [];
+        for (var i = 0; i < n; i++) {
+            var k = keys[i];
+            data.push({
+                t: prop.keyTime(k),
+                v: prop.keyValue(k),
+                inI: prop.keyInInterpolationType(k),
+                outI: prop.keyOutInterpolationType(k),
+                inE: prop.keyInTemporalEase(k),
+                outE: prop.keyOutTemporalEase(k),
+                inS: spatial ? prop.keyInSpatialTangent(k) : null,
+                outS: spatial ? prop.keyOutSpatialTangent(k) : null
+            });
+        }
+        // Pass 1: tulis value di waktu terbalik (offset dari key terakhir)
+        for (i = 0; i < n; i++) {
+            var nt = A + (tLast - data[i].t) * durScale;
+            prop.setValueAtTime(nt, data[i].v);
+        }
+        // Pass 2: set interpolasi/ease/tangent (in<->out ditukar, speed dibalik)
+        for (i = 0; i < n; i++) {
+            var s = data[i];
+            var ntt = A + (tLast - s.t) * durScale;
+            var idx = prop.nearestKeyIndex(ntt);
+            prop.setInterpolationTypeAtKey(idx, s.outI, s.inI);
+            try { prop.setTemporalEaseAtKey(idx, negEase(s.outE), negEase(s.inE)); } catch (e) {}
+            if (spatial && s.inS && s.outS) {
+                try { prop.setSpatialTangentsAtKey(idx, negVec(s.outS), negVec(s.inS)); } catch (e2) {}
+            }
+        }
+        return true;
+    }
+
+    function makeOut(durScale) {
+        var comp = app.project.activeItem;
+        if (!(comp && comp instanceof CompItem)) { alert("Buka composition dulu."); return; }
+        var props = comp.selectedProperties;
+        var A = comp.time;
+        app.beginUndoGroup("Shanusi Ease - Make Out");
+        var touched = 0;
+        for (var i = 0; i < props.length; i++) {
+            var prop = props[i];
+            if (!(prop instanceof Property) || !prop.canVaryOverTime) continue;
+            var keys = prop.selectedKeys;
+            if (!keys || keys.length < 2) continue;
+            if (reverseToOut(prop, keys, A, durScale)) touched++;
+        }
+        app.endUndoGroup();
+        if (touched === 0) alert("Pilih keyframe animasi masuk (min 2) dulu, lalu taruh playhead di posisi exit.");
+    }
+
+    /* =================================================================
      * UI
      * ===============================================================*/
     function buildUI(thisObj) {
@@ -689,6 +758,12 @@
         bApply.onClick = function () { applyEase(cp, curMode(), curRnd()); };
 
         /* ====================  TAB CREATE  ==================== */
+        /* ---------- MASUK -> KELUAR  (balikan di playhead) ---------- */
+        tabMake.add("statictext", undefined, "Masuk → Keluar");
+        var bOut = tabMake.add("button", undefined, "BUAT KELUAR (di playhead)");
+        bOut.helpTip = "Pilih keyframe animasi MASUK + taruh playhead di posisi exit, lalu klik. Animasi keluar = balikan dari masuk.";
+        bOut.onClick = function () { makeOut(1); };
+
         /* ---------- BOUNCE  (mantul satu sisi, gaya bola) ---------- */
         tabMake.add("statictext", undefined, "Bounce  (pilih 2 keyframe)");
         var br = tabMake.add("group"); br.spacing = 3;
