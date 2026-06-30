@@ -1,3 +1,20 @@
+# AI Assistants
 /.claude
 /.agents
-/.gitignore
+
+# Sistem Operasi
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Text Editor / IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# File Log & Temporary
+*.log
