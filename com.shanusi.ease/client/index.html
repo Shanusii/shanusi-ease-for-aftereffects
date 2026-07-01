@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shanusi Ease</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="brand">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M2 20 C 9 20, 9 4, 22 4" fill="none" stroke="#4da6ff" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="2" cy="20" r="2.4" fill="#4da6ff"/>
+            <circle cx="22" cy="4" r="2.4" fill="#ff8c4d"/>
+        </svg>
+        <span>Shanusi Ease</span>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" data-tab="ease">Ease</button>
+        <button class="tab" data-tab="create">Create</button>
+    </div>
+
+    <!-- ============ TAB EASE ============ -->
+    <section id="tab-ease" class="panel active">
+        <canvas id="graph" width="280" height="220"></canvas>
+        <canvas id="strip" class="strip" width="280" height="26"></canvas>
+        <div class="row zoomhint"><span>scroll di graph = zoom &middot; titik = preview</span><button id="fit" class="mini">Fit</button></div>
+
+        <div class="row">
+            <label>P1</label>
+            <input id="p1x" type="number" step="0.01" class="num">
+            <input id="p1y" type="number" step="0.01" class="num">
+            <label>P2</label>
+            <input id="p2x" type="number" step="0.01" class="num">
+            <input id="p2y" type="number" step="0.01" class="num">
+            <label>Rnd</label>
+            <input id="rnd" type="number" step="1" value="0" class="num sm" title="Randomize influence (%)">
+        </div>
+
+        <div class="row">
+            <select id="preset" class="grow"></select>
+            <button id="gallery" class="mini" title="Galeri preset (thumbnail)">&#9638;</button>
+            <button id="get" class="mini" title="Baca easing dari keyframe">Get</button>
+            <button id="save" class="mini" title="Simpan preset">+</button>
+            <button id="del" class="mini" title="Hapus preset custom">&minus;</button>
+            <button id="exp" class="mini" title="Export preset">&uarr;</button>
+            <button id="imp" class="mini" title="Import preset">&darr;</button>
+        </div>
+
+        <div id="gallery-wrap" class="gallery" style="display:none"></div>
+
+        <div class="row">
+            <select id="mode" class="grow">
+                <option value="both">Ease Both</option>
+                <option value="out">Out only</option>
+                <option value="in">In only</option>
+            </select>
+            <button id="copy" title="Copy easing asli">Copy</button>
+            <button id="paste" title="Paste easing">Paste</button>
+        </div>
+
+        <button id="apply" class="primary">APPLY</button>
+    </section>
+
+    <!-- ============ TAB CREATE ============ -->
+    <section id="tab-create" class="panel">
+        <h3>Masuk &rarr; Keluar</h3>
+        <button id="makeout" class="primary" title="Pilih keyframe masuk + taruh playhead di posisi exit">BUAT KELUAR (di playhead)</button>
+
+        <h3>Bounce <span class="sub">(pilih 2 keyframe)</span></h3>
+        <canvas id="bprev" class="prev" width="280" height="80"></canvas>
+        <div class="row">
+            <label>Jml</label><input id="bnum" type="number" step="1" value="3" class="num sm">
+            <label>Decay</label><input id="bdec" type="number" step="0.05" value="0.5" class="num">
+            <button id="bounce" class="grow">BOUNCE</button>
+        </div>
+
+        <h3>Elastic <span class="sub">(pilih 2 keyframe)</span></h3>
+        <canvas id="eprev" class="prev" width="280" height="80"></canvas>
+        <div class="row">
+            <label>Osilasi</label><input id="enum" type="number" step="1" value="4" class="num sm">
+            <label>Redam</label><input id="edmp" type="number" step="0.05" value="0.5" class="num">
+            <button id="elastic" class="grow">ELASTIC</button>
+        </div>
+    </section>
+
+    <div id="status" class="status"></div>
+
+    <script src="CSInterface.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,55 +1,66 @@
 # Shanusi Ease
 
-Shanusi Ease is an Adobe After Effects ScriptUI panel for editing easing curves, applying keyframe easing, managing presets, and generating simple animation keyframes.
+A custom easing toolkit for **Adobe After Effects** — design bezier easing
+curves visually, save them as presets, and generate spring-style motion
+(bounce / elastic) right on your keyframes. Inspired by tools like Flow and
+Ease and Wizz.
 
-## Requirements
+It ships in two flavors:
 
-- Adobe After Effects 2020 or newer
-- Windows or macOS
-- The `ShanusiEase.jsx` file from this repository
+| Version | Location | Best for |
+|---|---|---|
+| **CEP extension** | [`com.shanusi.ease/`](com.shanusi.ease/) | Smooth, real-time graph editor (HTML/canvas). Recommended. |
+| **ScriptUI script** | [`ShanusiEase.jsx`](ShanusiEase.jsx) | Single file, no install — runs from the Scripts menu. |
 
-## Installation
+## Features
+- **Visual graph editor** — drag the P1/P2 bezier handles; scroll to zoom; the
+  curve can overshoot outside the 0–1 box for back/anticipate easing.
+- **Apply / Get** — apply the curve to selected keyframes, or read an existing
+  keyframe's easing back into the graph.
+- **Presets** — built-in eases plus your own custom presets, with export/import.
+- **Copy / Paste easing** — transfer the exact easing between keyframes.
+- **Mode & randomize** — apply to the in side, out side, or both; optionally
+  randomize influence for a more organic feel.
+- **Bounce** — ball-style motion that rebounds on one side of the target, with
+  decreasing amplitude and shrinking intervals (gravity feel).
+- **Elastic** — spring-style oscillation that crosses the target on both sides
+  at a constant frequency, damping over time.
+- **Make Out** — turn an in-animation into a reversed out-animation at the
+  playhead (values, easing, interpolation, and spatial tangents all reversed).
 
-1. Close Adobe After Effects if it is currently running.
-2. Copy `ShanusiEase.jsx` into the After Effects `ScriptUI Panels` folder.
+## Install
 
-   Windows:
+### CEP extension (recommended)
+Full steps: [`com.shanusi.ease/README.md`](com.shanusi.ease/README.md).
+Quick version (personal use):
+1. Run `enable-debug.reg` once.
+2. Run `install-dev.bat` (or copy the `com.shanusi.ease` folder into
+   `%APPDATA%\Adobe\CEP\extensions\`).
+3. Restart AE → **Window → Extensions → Shanusi Ease**.
 
-   ```text
-   C:\Program Files\Adobe\Adobe After Effects <version>\Support Files\Scripts\ScriptUI Panels\
-   ```
+### ScriptUI script
+Copy `ShanusiEase.jsx` into the After Effects `ScriptUI Panels` folder:
 
-   macOS:
+- Windows: `C:\Program Files\Adobe\Adobe After Effects <version>\Support Files\Scripts\ScriptUI Panels\`
+- macOS: `/Applications/Adobe After Effects <version>/Scripts/ScriptUI Panels/`
 
-   ```text
-   /Applications/Adobe After Effects <version>/Scripts/ScriptUI Panels/
-   ```
-
-3. Open Adobe After Effects.
-4. Go to `Window > ShanusiEase.jsx`.
-5. Dock the panel wherever you prefer in the After Effects workspace.
-
-## Enable Preset Saving
-
-To allow Shanusi Ease to save custom presets:
-
-1. Open `Edit > Preferences > Scripting & Expressions` on Windows, or `After Effects > Settings > Scripting & Expressions` on macOS.
-2. Enable `Allow Scripts to Write Files and Access Network`.
-3. Restart After Effects if needed.
-
-Custom presets are saved in the user data folder under `ShanusiEase/presets.txt`.
+Then open it from **Window → ShanusiEase.jsx**. To save presets, enable
+*Allow Scripts to Write Files and Access Network* under
+`Preferences → Scripting & Expressions`. Custom presets are stored in the user
+data folder under `ShanusiEase/presets.txt`.
 
 ## Usage
-
-1. Select keyframes in the After Effects timeline.
-2. Open the Shanusi Ease panel from the `Window` menu.
-3. Adjust the Bezier handles or choose a preset.
-4. Apply the easing to the selected keyframes.
-5. Optionally save, export, import, or delete custom presets.
+1. Select keyframes in the timeline (most actions need at least 2).
+2. Open the panel and adjust the bezier handles or pick a preset.
+3. Apply the easing, or use the Create tab for Bounce / Elastic / Make Out.
 
 ## Troubleshooting
+- Panel missing from the menu → make sure the file/folder is in the correct
+  location and After Effects was restarted after installing.
+- Presets not saving (script version) → enable script file access in Preferences.
 
-- If the panel does not appear in the `Window` menu, confirm that `ShanusiEase.jsx` is inside the `ScriptUI Panels` folder, not the regular `Scripts` folder.
-- If presets do not save, make sure script file access is enabled in After Effects preferences.
-- If After Effects was open during installation, restart it so the panel can be detected.
+## Compatibility
+After Effects 2020 (17.0) and newer.
 
+## License
+[MIT](LICENSE)

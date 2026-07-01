@@ -597,16 +597,14 @@
             dot(cp.p2x, cp.p2y, [1.00, 0.55, 0.30, 1]);
         };
 
-        // Repaint paksa: notify("onDraw") sering DITUNDA AE (cuma ke-redraw saat
-        // ada event natural spt hover). Poke ukuran -> ScriptUI invalidasi &
-        // repaint seketika. Disetel ke nilai sama jadi tampilan tidak loncat.
+        // Repaint paksa. AE sering MENUNDA repaint custom-draw saat gesture drag
+        // berlangsung. Kita tembak beberapa cara sekaligus supaya salah satunya
+        // memaksa paint sinkron: notify -> poke size -> window.update().
         function redraw() {
             try { canvas.notify("onDraw"); } catch (e) {}
-            try {
-                var s = canvas.size;
-                canvas.size = [s[0], s[1]];
-            } catch (e2) {}
-            try { if (win.update) win.update(); } catch (e3) {}
+            try { var s = canvas.size; canvas.size = [s[0], s[1]]; } catch (e2) {}
+            try { var cw = canvas.window; if (cw && cw.update) cw.update(); } catch (e3) {}
+            try { if (win.update) win.update(); } catch (e4) {}
         }
 
         // --- drag interaksi ---
@@ -635,19 +633,29 @@
             dragging = 0;
             redraw();
         });
+        // Scroll di atas graph = zoom in/out
+        canvas.addEventListener("mousewheel", function (ev) {
+            var d = 0;
+            if (typeof ev.wheelDelta === "number" && ev.wheelDelta) d = ev.wheelDelta;
+            else if (typeof ev.deltaY === "number" && ev.deltaY) d = -ev.deltaY;
+            else if (typeof ev.detail === "number" && ev.detail) d = -ev.detail;
+            if (d === 0) return;
+            if (d > 0) vHalf = Math.max(V_MIN, vHalf * 0.85); // scroll atas = zoom in
+            else       vHalf = Math.min(V_MAX, vHalf * 1.18); // scroll bawah = zoom out
+            applyZoom();
+            redraw();
+            try { ev.preventDefault(); } catch (e) {}
+        });
         function dist(ax, ay, bx, by) { return Math.sqrt((ax - bx) * (ax - bx) + (ay - by) * (ay - by)); }
         function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
-        /* ---------- BARIS ZOOM ---------- */
+        /* ---------- BARIS ZOOM (scroll di graph) ---------- */
         var zrow = tabEase.add("group");
-        zrow.spacing = 3;
+        zrow.spacing = 6;
         zrow.alignment = ["right", "top"];
-        zrow.add("statictext", undefined, "Zoom");
-        var bZout = zrow.add("button", undefined, "−"); bZout.preferredSize.width = 26; bZout.helpTip = "Zoom out (lebih banyak ruang overshoot)";
-        var bZin  = zrow.add("button", undefined, "+"); bZin.preferredSize.width = 26;  bZin.helpTip = "Zoom in";
-        var bZfit = zrow.add("button", undefined, "Fit"); bZfit.preferredSize.width = 34; bZfit.helpTip = "Reset zoom default";
-        bZout.onClick = function () { vHalf = Math.min(V_MAX, vHalf * 1.25); applyZoom(); redraw(); };
-        bZin.onClick  = function () { vHalf = Math.max(V_MIN, vHalf * 0.8);  applyZoom(); redraw(); };
+        var zhint = zrow.add("statictext", undefined, "scroll di graph = zoom");
+        zhint.graphics.foregroundColor = zhint.graphics.newPen(zhint.graphics.PenType.SOLID_COLOR, [0.6, 0.6, 0.6], 1);
+        var bZfit = zrow.add("button", undefined, "Fit"); bZfit.preferredSize.width = 34; bZfit.helpTip = "Reset zoom ke default";
         bZfit.onClick = function () { vHalf = 1.2; applyZoom(); redraw(); };
 
         /* ---------- BARIS NILAI P1/P2 + RND ---------- */

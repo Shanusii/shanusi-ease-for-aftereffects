@@ -18,3 +18,9 @@ Desktop.ini
 
 # File Log & Temporary
 *.log
+
+# CEP Extension — build & signing (JANGAN commit)
+*.zxp
+*.p12
+*.pem
+cert.*
